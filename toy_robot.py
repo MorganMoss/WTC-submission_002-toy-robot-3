@@ -110,7 +110,7 @@ class ToyRobot:
         next_arg = next(command_iter)
         try:
             return arg_type(next_arg)
-        except TypeError:
+        except TypeError and ValueError:
             self.robot_say_message(
                 " ".join([
                     f"Sorry, '{next_arg}'",
@@ -119,6 +119,7 @@ class ToyRobot:
                 ]),
                 f"{self.name}: "
             ) 
+            return None
                 
         
     def command_valid(self, command:list):
@@ -170,7 +171,7 @@ class ToyRobot:
                     return False
                 args.append(new_arg)
             except StopIteration:
-                    self.robot_say_message(
+                self.robot_say_message(
                     " ".join([
                         f"Sorry, '{command[0]}'",
                         f"needs {len(command_args)}",
@@ -178,6 +179,7 @@ class ToyRobot:
                     ]),
                     f"{self.name}: "
                 )
+                return False
         #organising optional args
         for arg_type in command_opt:
             try:
@@ -320,14 +322,14 @@ class ToyRobot:
             spaces = "  " if key == "OFF" else " " if key == "HELP" else "\t"
             self.robot_say_message(f"{key}{spaces}- {value['description']}")
 
-
+    #I need to tighten this up tmoro
     def replay_valid_args(self, command_arguments:str):
         processed_args = {
             'silent'    : False,
             'reversed'  : True if 'reversed' in command_arguments else False,
             'range'     : [0, len(self.history)]
         }
-        #I need to tighten this up tmoro
+        
         command_arguments = command_arguments.lower()
 
         for key in processed_args.keys():
@@ -365,7 +367,7 @@ class ToyRobot:
         
         return processed_args
 
-
+    #tighten and complete this too
     def command_replay(self, command_arguments:str=""):
         processed_args = self.replay_valid_args(command_arguments)
         if not processed_args:

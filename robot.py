@@ -10,7 +10,6 @@ def robot_start():
     )
     while True: 
         command = robby.robot_get_command()
-        # print(command)
         try:
             robby.robot_execute_command(command)
         except SystemExit:
