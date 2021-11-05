@@ -279,7 +279,7 @@ HAL: What must I do next?  > HAL moved forward by 10 steps.
  > HAL replayed 2 commands.
  > HAL now at position (0,30).
 HAL: What must I do next? HAL: Shutting down..""", output)
-
+ 
     def test_step2_replay_twice(self):
         with captured_io(StringIO('HAL\nforward 10\nforward 5\nreplay\nreplay\noff\n')) as (out, err):
             robot.robot_start()
