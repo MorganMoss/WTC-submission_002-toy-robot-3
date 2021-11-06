@@ -1,5 +1,0 @@
-x = ' abc efg '.split(' ')
-x.remove('abc')
-print(x)
-x.remove('efg')
-print(x)

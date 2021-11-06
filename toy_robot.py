@@ -1,11 +1,10 @@
-from command_robot import CommandRobot
 from command_handling import CommandHandler
 from exceptions import InputError
 
 
-class ToyRobot(CommandRobot, CommandHandler):
+class ToyRobot(CommandHandler):
     """
-    This class combines the Command Robot class and the Command Handler class
+    This class uses the Command Handler class
     to be able to execute commands on the robot via user input.
     """
 
@@ -23,13 +22,8 @@ class ToyRobot(CommandRobot, CommandHandler):
             command = CommandHandler.get_command(self)
             self.exec_command(command)
         except InputError as e:
-            if len(str(e)) > 0:
                 self.robot_say_message(str(e), f"{self.name}: ")
-            else:
-                self.robot_say_message(
-                    f"Sorry, I did not understand '{' '.join(command)}'.",
-                    f"{self.name}: "
-                )
+                
 
     def start(self):
         """ 
@@ -44,9 +38,7 @@ class ToyRobot(CommandRobot, CommandHandler):
 
     def __init__(self) -> None:
         """
-        Constructor for ToyRobot:
-            * Calls constructors of inherited classes.
-            * Starts the robot.
+        Constructor for ToyRobot, calls CommandHandler's constructor.
         """
         super().__init__()
         

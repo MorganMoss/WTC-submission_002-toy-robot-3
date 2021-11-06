@@ -1,29 +1,10 @@
 from base_robot import BaseRobot
-from exceptions import InputError, ValidationError
 
 class CommandRobot(BaseRobot):      
     """
     This class inherits from the base class and implements
     commands for the robot.
     """
-
-    def exec_command(self, command:list):
-        """
-        Executes a specific command available to the robot.
-        
-        Not necessary to call this function outside of this class.
-
-        Args:
-            command (list): contains a valid uppercase command 
-            and the necessary arguments in their correct types.
-        """
-        if  self.command_dict[command[0].upper()]["history"]:
-            self.history.append(command)
-
-        if  len(command) > 1:
-            self.command_dict[command[0].upper()]["command"](*command[1:])   
-        else:
-            self.command_dict[command[0].upper()]["command"]()
 
 
     def command_forward(self, steps:int):
@@ -106,55 +87,20 @@ class CommandRobot(BaseRobot):
             self.robot_say_message(f"{key}{spaces}- {value['description']}")
 
 
-    def replay_valid_args(self, command_arguments:str):
-        h_size = len(self.history)
-        processed_args = {
-            'silent'    : False,
-            'reversed'  : False,
-            'range'     : range(0, h_size)
-        }
+    def command_replay(self, processed_args:dict):
+        """
+        Replays all previous movement and rotation commands in a range.
 
-        command_arguments = command_arguments.lower().strip().split()
-        for key in ['silent', 'reversed']:
-            try: 
-                command_arguments.remove(key)
-            except ValueError:
-                continue
-            processed_args[key] = True
-        if len(command_arguments) > 1:
-            raise ValidationError
-
-        if  len(command_arguments) == 1:
-            command_arguments = command_arguments[0].strip().split('-')
-
-            if  not all(map(lambda arg : arg.isdigit(), command_arguments)):
-                raise ValidationError
-            if  len(command_arguments) > 2:
-                raise ValidationError
-
-            
-            if len(command_arguments) == 2:
-                start = h_size - int(command_arguments[0])
-                stop = h_size - int(command_arguments[1])
-            else:
-                start = h_size - int(command_arguments[0])
-                stop = h_size
-            
-            if  0 > start or start > stop or stop > h_size:
-                raise ValidationError
-        
-            processed_args["range"] = range(start, stop)
-       
-
-        return processed_args
-
-    #tighten and complete this too
-    def command_replay(self, command_arguments:str=""):
-        try:
-            processed_args = self.replay_valid_args(command_arguments)
-        except ValidationError:
-            raise InputError
-
+        Args:
+            processed_args (dict): The processed string argument
+                Contains:
+                    * 'silent' (bool): Whether or not you want 
+                    the robot to show output from replayed commands
+                    * 'reversed (bool): If you want to go through the history
+                    from first to last (False) or last to first (True)
+                    * 'range' (range): The range of history that repaly will
+                    call commands from.
+        """
         if  processed_args['silent']:
             self.messages_enabled = False
 
@@ -184,15 +130,38 @@ class CommandRobot(BaseRobot):
         self.robot_report_position()
 
 
-    
+    def exec_command(self, command:list):
+        """
+        Executes a specific command available to the robot.
+        
+        Not necessary to call this function outside of this class.
+
+        Args:
+            command (list): contains a valid uppercase command 
+            and the necessary arguments in their correct types.
+        """
+        if  self.command_dict[command[0].upper()]["history"]:
+            self.history.append(command)
+
+        if  len(command) > 1:
+            self.command_dict[command[0].upper()]["command"](*command[1:])   
+        else:
+            self.command_dict[command[0].upper()]["command"]()
+
+
     def __init__(self) -> None:
+        """
+        Contructor for CommandRobot, initializes a dictionary 
+        containing all the commands above,
+        with descriptions and arguments
+        It also creates an empty history list 
+        and calls the BaseRobot constructor.
+        """
         super().__init__()
         self.history:list = list()
-
-        
         """
         Rules for command_dict commands:
-            * The key is the command word.
+            * The key is the command word (in caps!).
             * The item is a dictionary:
                 * requires "description" with a relevant explanation.
                 * requires "command" that equals the relevant method in CommandRobot.
@@ -208,39 +177,45 @@ class CommandRobot(BaseRobot):
                         * have only one str argument.
         """
         self.command_dict:dict = {
-        "OFF"       : { "description" : "Shut down robot",
-                        "command" : self.command_off ,
-                        "history" : False},
+        "OFF"       : { "description": "Shut down robot",
+                        "command": self.command_off ,
+                        "history": False},
 
-        "HELP"      : { "description" : "provide information about commands", 
-                        "command" : self.command_help, 
-                        "history" : False},
+        "HELP"      : { "description": "provide information about commands", 
+                        "command": self.command_help, 
+                        "history": False},
 
-        "FORWARD"   : { "description" : "Move robot foward by [number] steps", 
-                        "command" : self.command_forward, 
-                        "args" : [int],
-                        "history" : True},
+        "FORWARD"   : { "description": "Move robot foward by [number] steps", 
+                        "command": self.command_forward, 
+                        "args": [int],
+                        "history": True},
 
-        "BACK"      : { "description" : "Move robot back by [number] steps", 
-                        "command" : self.command_back, 
-                        "args" : [int],
-                        "history" : True},
+        "BACK"      : { "description": "Move robot back by [number] steps", 
+                        "command": self.command_back, 
+                        "args": [int],
+                        "history": True},
 
-        "RIGHT"     : { "description" : "Rotate robot right", 
-                        "command" :  self.command_turn_right, 
-                        "history" : True},    
+        "RIGHT"     : { "description": "Rotate robot right", 
+                        "command":  self.command_turn_right, 
+                        "history": True},    
 
-        "LEFT"      : { "description" : "Rotate robot left", 
-                        "command" : self.command_turn_left, 
-                        "history" : True},
+        "LEFT"      : { "description": "Rotate robot left", 
+                        "command": self.command_turn_left, 
+                        "history": True},
 
-        "SPRINT"    : { "description" : "Move robot foward by [number] steps", 
-                        "command" : self.command_sprint, 
-                        "args" : [int],
-                        "history" : True},       
+        "SPRINT"    : { "description": "Move robot foward by [number] steps", 
+                        "command": self.command_sprint, 
+                        "args": [int],
+                        "history": True},       
 
-        "REPLAY"    : { "description" : "Redoes all previous movement commands", 
-                        "command" : self.command_replay, 
-                        "optional" : [str],
-                        "history" : False},            
+        "REPLAY"    : { "description": "Replays previous movement commands.\n"+
+                        "\t  It has optional arguments:"+
+                        "\n\t\tSilent - Hides output from replayed commands"+
+                        "\n\t\tReversed - Reverses the order to be last to first"+
+                        "\n\t\t<int> - Starts from previous <int> commands"+
+                        "\n\t\t<int>-<int> - Starts from previous <int> "+
+                        "commands and ends at <int> previous commands", 
+                        "command": self.command_replay, 
+                        "optional": [str],
+                        "history": False},            
         }
