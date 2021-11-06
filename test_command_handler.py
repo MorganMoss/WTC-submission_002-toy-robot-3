@@ -1,7 +1,7 @@
 import unittest
 from io import StringIO
 from test_base import captured_io
-from command_handling import CommandHandler
+from robot_command_handling import CommandHandler
 
 
 class TestCommandHandler(unittest.TestCase):

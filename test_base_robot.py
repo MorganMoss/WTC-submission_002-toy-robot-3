@@ -2,7 +2,7 @@ import unittest
 from io import StringIO
 from test_base import captured_io
 import math
-from base_robot import BaseRobot
+from robot_base import BaseRobot
 
 class TestBaseRobot(unittest.TestCase):
     base_robby = BaseRobot()

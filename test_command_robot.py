@@ -1,7 +1,7 @@
 import unittest
 from io import StringIO
 from test_base import captured_io
-from command_robot import CommandRobot
+from robot_command import CommandRobot
 
 
 class TestCommandRobot(unittest.TestCase):
