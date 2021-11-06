@@ -1,5 +1,5 @@
 from exceptions import InputError
-from command_robot import CommandRobot
+from robot_command import CommandRobot
 
 class CommandHandler(CommandRobot):
     """

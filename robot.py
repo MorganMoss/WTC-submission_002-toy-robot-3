@@ -1,4 +1,4 @@
-from toy_robot import ToyRobot
+from robot_toy import ToyRobot
 
 def robot_start():
     """This is the entry point for starting my robot"""

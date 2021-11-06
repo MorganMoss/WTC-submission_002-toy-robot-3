@@ -1,4 +1,4 @@
-from base_robot import BaseRobot
+from robot_base import BaseRobot
 
 class CommandRobot(BaseRobot):      
     """
