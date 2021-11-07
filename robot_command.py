@@ -142,11 +142,11 @@ class CommandRobot(BaseRobot):
         """
         if  self.command_dict[command[0].upper()]["history"]:
             self.history.append(command)
-
-        if  len(command) > 1:
-            self.command_dict[command[0].upper()]["command"](*command[1:])   
-        else:
-            self.command_dict[command[0].upper()]["command"]()
+            
+        getattr(
+            self,
+            self.command_dict[command[0].upper()]["command"]
+        )(*command[1:])
 
 
     def __init__(self) -> None:
@@ -178,33 +178,33 @@ class CommandRobot(BaseRobot):
         """
         self.command_dict:dict = {
         "OFF"       : { "description": "Shut down robot",
-                        "command": self.command_off ,
+                        "command": "command_off" ,
                         "history": False},
 
         "HELP"      : { "description": "provide information about commands", 
-                        "command": self.command_help, 
+                        "command": "command_help", 
                         "history": False},
 
         "FORWARD"   : { "description": "Move robot foward by [number] steps", 
-                        "command": self.command_forward, 
+                        "command": "command_forward", 
                         "args": [int],
                         "history": True},
 
         "BACK"      : { "description": "Move robot back by [number] steps", 
-                        "command": self.command_back, 
+                        "command": "command_back", 
                         "args": [int],
                         "history": True},
 
         "RIGHT"     : { "description": "Rotate robot right", 
-                        "command":  self.command_turn_right, 
+                        "command": "command_turn_right", 
                         "history": True},    
 
         "LEFT"      : { "description": "Rotate robot left", 
-                        "command": self.command_turn_left, 
+                        "command": "command_turn_left", 
                         "history": True},
 
         "SPRINT"    : { "description": "Move robot foward by [number] steps", 
-                        "command": self.command_sprint, 
+                        "command": "command_sprint", 
                         "args": [int],
                         "history": True},       
 
@@ -215,7 +215,7 @@ class CommandRobot(BaseRobot):
                         "\n\t\t<int> - Starts from previous <int> commands"+
                         "\n\t\t<int>-<int> - Starts from previous <int> "+
                         "commands and ends at <int> previous commands", 
-                        "command": self.command_replay, 
+                        "command": "command_replay", 
                         "optional": [str],
                         "history": False},            
         }
