@@ -20,7 +20,7 @@ class TestCommandRobot(unittest.TestCase):
                         command_robby.exec_command(l)
                     except SystemExit: ...
                 elif command_name == "REPLAY":
-                    l += [{'silent': True, 'reverse': False, 'range': range(0)}]
+                    l += [{'silent': True, 'reversed': False, 'range': range(0)}]
                     command_robby.exec_command(l)
                 else:
                     if 'args' in command.keys():
@@ -64,6 +64,7 @@ class TestCommandRobot(unittest.TestCase):
     @mock.patch.object(
         CommandRobot, 'robot_rotate', side_effect = command_robby.robot_rotate)
     def test_right(self, mock):
+        self.command_robby.rotation = 0
         with captured_io(StringIO()) as (out, err):
             self.command_robby.exec_command(["RIGHT"])
         self.assertEqual(self.command_robby.rotation, 90)
@@ -76,6 +77,7 @@ class TestCommandRobot(unittest.TestCase):
     @mock.patch.object(
         CommandRobot, 'robot_rotate', side_effect = command_robby.robot_rotate)
     def turn_left(self, mock):
+        self.command_robby.rotation = 0
         with captured_io(StringIO()) as (out, err):
             self.command_robby.exec_command(["LEFT"])
         self.assertEqual(self.command_robby.rotation, 270)
@@ -134,8 +136,59 @@ REPLAY\t- Replays previous movement commands.
 
 
     def test_replay(self):
-        ...
+        self.command_robby.history = [
+            ["Forward", 3],["Back", 3],["Left"]
+        ]
+        l = [
+                "Replay",
+                {
+                    'silent': False,
+                    'reversed': False,
+                    'range': range(0,len(self.command_robby.history))
+                }
+            ]
+        with captured_io(StringIO()) as (out, err):
+            self.command_robby.exec_command(l)
+        output = out.getvalue()
+        self.assertEqual(""" > ROBBY moved forward by 3 steps.
+ > ROBBY now at position (0,3).
+ > ROBBY moved back by 3 steps.
+ > ROBBY now at position (0,0).
+ > ROBBY turned left.
+ > ROBBY now at position (0,0).
+ > ROBBY replayed 3 commands.
+ > ROBBY now at position (0,0).
+""", output)
 
+        l[1]['silent'] = True
+        with captured_io(StringIO()) as (out, err):
+            self.command_robby.exec_command(l)
+        output = out.getvalue()
+        self.assertEqual(""" > ROBBY replayed 3 commands silently.
+ > ROBBY now at position (0,0).
+""", output)
+
+        l[1]['reversed'] = True
+        with captured_io(StringIO()) as (out, err):
+            self.command_robby.exec_command(l)
+        output = out.getvalue()
+        self.assertEqual(""" > ROBBY replayed 3 commands in reverse silently.
+ > ROBBY now at position (0,0).
+""", output)
+
+        l[1]['silent'] = False
+        with captured_io(StringIO()) as (out, err):
+            self.command_robby.exec_command(l)
+        output = out.getvalue()
+        self.assertEqual(""" > ROBBY turned left.
+ > ROBBY now at position (0,0).
+ > ROBBY moved back by 3 steps.
+ > ROBBY now at position (0,-3).
+ > ROBBY moved forward by 3 steps.
+ > ROBBY now at position (0,0).
+ > ROBBY replayed 3 commands in reverse.
+ > ROBBY now at position (0,0).
+""", output)
 
 if __name__ == '__main__':
     unittest.main()
