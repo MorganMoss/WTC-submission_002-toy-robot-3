@@ -2,11 +2,11 @@ from robot_toy import ToyRobot
 
 def robot_start():
     """This is the entry point for starting my robot"""
-    t = ToyRobot()
-    t.start()
+    toy_robot = ToyRobot()
+    toy_robot.start()
     while True:
         try:
-            t.cmd()
+            toy_robot.cmd()
         except SystemExit:
             break
 
