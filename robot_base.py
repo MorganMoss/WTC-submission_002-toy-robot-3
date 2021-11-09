@@ -67,7 +67,8 @@ class BaseRobot():
 
     def robot_move(self, steps:int):
         """
-        Moves the robot and then the robot sends a message saying it has done so.
+        Moves the robot and then the robot
+        sends a message saying it has done so.
 
         Args:
             steps (int): The distance the robot moves.
@@ -91,6 +92,12 @@ class BaseRobot():
         
     
     def robot_rotate(self, angle:int):
+        """
+        Rotates robot by <angle> degrees.
+
+        Args:
+            angle (int): degrees to be rotated.
+        """
         direction =  'right' if angle > 0 else 'left'
 
         self.rotation = (self.rotation + angle)%360

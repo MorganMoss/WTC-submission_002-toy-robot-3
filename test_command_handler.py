@@ -9,6 +9,7 @@ from exceptions import InputError
 class TestCommandHandler(unittest.TestCase):
     handler_robby = CommandHandler()
 
+
     def test_command_word_valid(self):
         #shouldn't raise error
         for key in self.handler_robby.command_dict:
@@ -116,7 +117,7 @@ class TestCommandHandler(unittest.TestCase):
             #shouldn't give an error
             self.assertEqual(
                 self.handler_robby.organise_opt(key, input_args_iter),
-                input_args
+                input_args if key!='REPLAY' else ['']
             )
         for key in self.handler_robby.command_dict:
             input_args = list().copy()
@@ -161,7 +162,6 @@ class TestCommandHandler(unittest.TestCase):
 
 
     @mock.patch.object(CommandHandler, "command_word_valid")
-    @mock.patch.object(CommandHandler, "convert_command_args")
     @mock.patch.object(CommandHandler, "organise_args")
     @mock.patch.object(CommandHandler, "organise_opt")
     @mock.patch.object(CommandHandler, "overflow_arg")
@@ -172,41 +172,87 @@ class TestCommandHandler(unittest.TestCase):
 
 
     def test_replay_valid_args(self):
-        history  = [1,2,3]
+        self.handler_robby.history  = [1,2,3]
         base_dict = {
             'silent'    : False,
             'reversed'  : False,
             'range'     : range(0, 3)
         }
         self.assertEqual(
-            self.handler_robby.replay_valid_args([]),
+            self.handler_robby.replay_valid_args(''),
             base_dict
         )
         silent = base_dict.copy()
         silent['silent'] = True
         self.assertEqual(
-            self.handler_robby.replay_valid_args(["silent"]),
+            self.handler_robby.replay_valid_args("silent"),
             silent
         )
         reversed = base_dict.copy()
-        silent['reversed'] = True
+        reversed['reversed'] = True
         self.assertEqual(
-            self.handler_robby.replay_valid_args(["reversed"]),
-            silent
+            self.handler_robby.replay_valid_args("reversed"),
+            reversed
         )
         both_silent_and_reverse = base_dict.copy()
         both_silent_and_reverse['reversed'] = True
         both_silent_and_reverse['silent'] = True
         self.assertEqual(
-            self.handler_robby.replay_valid_args(["reversed", "silent"]),
+            self.handler_robby.replay_valid_args("reversed silent"),
             both_silent_and_reverse
         )
         self.assertEqual(
-            self.handler_robby.replay_valid_args(["silent", "reversed"]),
+            self.handler_robby.replay_valid_args("silent reversed"),
             both_silent_and_reverse
         )
+        try:
+            self.handler_robby.replay_valid_args("bob"),
+        except InputError as e:
+            #caught an error
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)         
+        try:
+            self.handler_robby.replay_valid_args("silent bob"),
+        except InputError as e:
+            #caught an error
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)         
+        try:
+            self.handler_robby.replay_valid_args("bob reversed"),
+        except InputError as e:
+            #caught an error
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)      
 
-
+        self.assertEqual(
+            self.handler_robby.replay_valid_args("2")['range'],
+            range(1,3)
+        )
+        self.assertEqual(
+            self.handler_robby.replay_valid_args("1")['range'],
+            range(2,3)
+        )
+        self.assertEqual(
+            self.handler_robby.replay_valid_args("3-2")['range'],
+            range(0,1)
+        )
+        try:
+            self.handler_robby.replay_valid_args("1-3"),
+        except InputError as e:
+            #caught an error
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+        try:
+            self.handler_robby.replay_valid_args("5"),
+        except InputError as e:
+            #caught an error
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)       
 
 
     def test_get_command(self):
