@@ -172,7 +172,41 @@ class TestCommandHandler(unittest.TestCase):
 
 
     def test_replay_valid_args(self):
-        pass
+        history  = [1,2,3]
+        base_dict = {
+            'silent'    : False,
+            'reversed'  : False,
+            'range'     : range(0, 3)
+        }
+        self.assertEqual(
+            self.handler_robby.replay_valid_args([]),
+            base_dict
+        )
+        silent = base_dict.copy()
+        silent['silent'] = True
+        self.assertEqual(
+            self.handler_robby.replay_valid_args(["silent"]),
+            silent
+        )
+        reversed = base_dict.copy()
+        silent['reversed'] = True
+        self.assertEqual(
+            self.handler_robby.replay_valid_args(["reversed"]),
+            silent
+        )
+        both_silent_and_reverse = base_dict.copy()
+        both_silent_and_reverse['reversed'] = True
+        both_silent_and_reverse['silent'] = True
+        self.assertEqual(
+            self.handler_robby.replay_valid_args(["reversed", "silent"]),
+            both_silent_and_reverse
+        )
+        self.assertEqual(
+            self.handler_robby.replay_valid_args(["silent", "reversed"]),
+            both_silent_and_reverse
+        )
+
+
 
 
     def test_get_command(self):
