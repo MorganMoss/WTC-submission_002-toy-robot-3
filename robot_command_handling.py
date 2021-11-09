@@ -127,7 +127,7 @@ class CommandHandler(CommandRobot):
             next(command_iter) 
         except StopIteration:
             return
-        raise InputError(f"Sorry, You have too many arguments.")
+        raise InputError("Sorry, You have too many arguments.")
 
 
     def command_valid(self, command:list):
@@ -230,9 +230,9 @@ class CommandHandler(CommandRobot):
         if command[0].upper() == 'REPLAY':
             try:
                 command[1] = self.replay_valid_args(command[1])
-            except InputError:
+            except InputError :
                 raise InputError(command)
-        
+
         return [command[0], *command[1:]] \
                 if len(command) > 1 else command
     

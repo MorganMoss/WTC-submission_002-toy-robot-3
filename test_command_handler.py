@@ -1,5 +1,6 @@
 import unittest
 from io import StringIO
+from unittest import mock
 from test_base import captured_io
 from robot_command_handling import CommandHandler
 from exceptions import InputError
@@ -9,17 +10,167 @@ class TestCommandHandler(unittest.TestCase):
     handler_robby = CommandHandler()
 
     def test_command_word_valid(self):
-        pass
+        #shouldn't raise error
+        for key in self.handler_robby.command_dict:
+            self.handler_robby.command_word_valid(
+                [f"{key}"])
+            self.handler_robby.command_word_valid(
+                [f"{key[0].lower()}{key[1:len(key)-1]}{key[-1].lower()}"])
+            self.handler_robby.command_word_valid(
+                [f"{key[0]}{key[1:len(key)-1].lower()}{key[-1]}"])
+            self.handler_robby.command_word_valid(
+                [f"{key.lower()}"])
+        #should raise error
+        try:
+            self.handler_robby.command_word_valid(["Fail"])
+        except InputError as e:
+            self.assertEqual("Sorry, I did not understand 'Fail'.", str(e))
+
+
     def test_convert_command_args(self):
-        pass
+        for key in self.handler_robby.command_dict:
+            input_args = list().copy()
+            try:
+                args = self.handler_robby.command_dict[key]['args']
+            except KeyError:
+                args = list().copy()
+            for arg in args:
+                input_args.append(arg())
+            input_args_iter = iter(map(str,input_args))
+            #shouldn't give an error
+            if args != []:
+                for i in range(len(input_args)):
+                    self.assertEqual(
+                        input_args[i],
+                        self.handler_robby.convert_command_args(args[i], input_args_iter))
+        #now with type error
+        for key in self.handler_robby.command_dict:
+            input_args = list().copy()
+            try:
+                args = self.handler_robby.command_dict[key]['args']
+            except KeyError:
+                args = list().copy()
+            for arg in args:
+                input_args.append(float())
+            input_args_iter = iter(map(str,input_args))
+            #shouldn't give an error
+            if args != []:
+                for i in range(len(input_args)):
+                    try:
+                        self.assertEqual(
+                            input_args[i],
+                            self.handler_robby.convert_command_args(args[i], input_args_iter))
+                    except InputError as e:
+                        #caught an error
+                        self.assertTrue(True)
+                    else:
+                        self.assertTrue(False)
+
+
     def test_organise_args(self):
-        pass
+        for key in self.handler_robby.command_dict:
+            input_args = list().copy()
+            try:
+                args = self.handler_robby.command_dict[key]['args']
+            except KeyError:
+                args = list().copy()
+            for arg in args:
+                input_args.append(arg())
+            input_args_iter = iter(map(str, input_args))
+            #shouldn't give an error
+            self.assertEqual(
+                self.handler_robby.organise_args(key, input_args_iter),
+                input_args
+            )
+        for key in self.handler_robby.command_dict:
+            input_args = list().copy()
+            try:
+                args = self.handler_robby.command_dict[key]['args']
+            except KeyError:
+                args = list().copy()
+            for arg in args:
+                input_args.append(arg())
+            input_args_iter = iter(map(str, input_args))
+            #should give an error
+            if args != []:
+                next(input_args_iter)
+                try:
+                    self.handler_robby.organise_args(key, input_args_iter)
+                except InputError as e:
+                    #caught an error
+                    self.assertTrue(True)
+                else:
+                    self.assertTrue(False)
+
+
     def test_organise_opt(self):
-        pass
+        for key in self.handler_robby.command_dict:
+            input_args = list().copy()
+            try:
+                args = self.handler_robby.command_dict[key]['opt']
+            except KeyError:
+                args = list().copy()
+            for arg in args:
+                input_args.append(arg())
+            input_args_iter = iter(map(str, input_args))
+            #shouldn't give an error
+            self.assertEqual(
+                self.handler_robby.organise_opt(key, input_args_iter),
+                input_args
+            )
+        for key in self.handler_robby.command_dict:
+            input_args = list().copy()
+            try:
+                args = self.handler_robby.command_dict[key]['opt']
+            except KeyError:
+                args = list().copy()
+            for arg in args:
+                input_args.append(arg())
+            input_args_iter = iter(map(str, input_args))
+            #shouldnt give an error
+            if args != []:
+                next(input_args_iter)
+                self.handler_robby.organise_opt(key, input_args_iter)
+        for key in self.handler_robby.command_dict:
+            input_args = list().copy()
+            try:
+                args = self.handler_robby.command_dict[key]['opt']
+            except KeyError:
+                args = list().copy()
+            for arg in args:
+                input_args.append(arg())
+            input_args.append("Extra")
+            input_args_iter = iter(map(str, input_args))
+            #should give an error
+            if args != []:
+                try:
+                    self.handler_robby.organise_opt(key, input_args_iter)
+                except InputError as e:
+                    #caught an error
+                    self.assertTrue(True)
+                else:
+                    self.assertTrue(False)           
+
+
     def test_overflow_arg(self):
-        pass
-    def test_command_valid(self):
-        pass
+        try:
+            self.handler_robby.overflow_arg(iter([1]))
+        except InputError as e:
+            self.assertEqual(str(e), "Sorry, You have too many arguments.")
+        self.handler_robby.overflow_arg(iter([]))
+
+
+    @mock.patch.object(CommandHandler, "command_word_valid")
+    @mock.patch.object(CommandHandler, "convert_command_args")
+    @mock.patch.object(CommandHandler, "organise_args")
+    @mock.patch.object(CommandHandler, "organise_opt")
+    @mock.patch.object(CommandHandler, "overflow_arg")
+    def test_command_valid(self, *mock):
+        self.handler_robby.command_valid(["OfF"])
+        for m in mock:
+            m.assert_called()
+
+
     def test_replay_valid_args(self):
         pass
 

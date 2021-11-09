@@ -10,7 +10,10 @@ class InputError(Exception):
         Args:
             command (list, optional): The user command. Defaults to [].
         """
-        super().__init__(
-            f"Sorry, I did not understand '{' '.join(command)}'.",
-            *args
-        )
+        if isinstance(command, list):
+            super().__init__(
+                f"Sorry, I did not understand '{' '.join(command)}'.",
+                *args
+            )
+        else:
+            super().__init__(command)

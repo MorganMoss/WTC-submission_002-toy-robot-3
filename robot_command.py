@@ -203,7 +203,8 @@ class CommandRobot(BaseRobot):
                         "command": "command_turn_left", 
                         "history": True},
 
-        "SPRINT"    : { "description": "Move robot foward by [number] steps", 
+        "SPRINT"    : { "description": "Move robot foward by [number] steps, "+
+                        "then [number]-1 steps, and so on, until it hits 0.", 
                         "command": "command_sprint", 
                         "args": [int],
                         "history": True},       

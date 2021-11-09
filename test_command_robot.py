@@ -10,7 +10,7 @@ class TestCommandRobot(unittest.TestCase):
     command_robby.name = "ROBBY"
     
     
-    def test_exrc_command(self):
+    def test_exec_command(self):
         command_robby = self.command_robby
         for command_name, command in self.command_robby.command_dict.items():
             def test_this_command(self, mock):
@@ -125,7 +125,7 @@ FORWARD\t- Move robot foward by [number] steps
 BACK\t- Move robot back by [number] steps
 RIGHT\t- Rotate robot right
 LEFT\t- Rotate robot left
-SPRINT\t- Move robot foward by [number] steps
+SPRINT\t- Move robot foward by [number] steps, then [number]-1 steps, and so on, until it hits 0.
 REPLAY\t- Replays previous movement commands.
 \t  It has optional arguments:
 \t\tSilent - Hides output from replayed commands
